@@ -34,3 +34,12 @@
 [submodule "code-analysis/serena"]
 	path = code-analysis/serena
 	url = https://github.com/oraios/serena.git
+[submodule "security/gitleaks"]
+	path = security/gitleaks
+	url = https://github.com/gitleaks/gitleaks.git
+[submodule "security/osv-scanner"]
+	path = security/osv-scanner
+	url = https://github.com/google/osv-scanner.git
+[submodule "ci-analysis/actionlint"]
+	path = ci-analysis/actionlint
+	url = https://github.com/rhysd/actionlint.git
