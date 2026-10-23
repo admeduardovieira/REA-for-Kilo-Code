@@ -52,3 +52,6 @@
 [submodule "skills/superpowers"]
 	path = skills/superpowers
 	url = https://github.com/obra/superpowers.git
+[submodule "marketplace/kilo-marketplace"]
+	path = marketplace/kilo-marketplace
+	url = https://github.com/Kilo-Org/kilo-marketplace.git
