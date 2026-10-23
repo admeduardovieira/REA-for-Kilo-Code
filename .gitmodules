@@ -28,3 +28,9 @@
 [submodule "external/kilo-marketplace"]
 	path = marketplace/kilo-marketplace
 	url = https://github.com/Kilo-Org/kilocode-marketplace.git
+[submodule "code-analysis/ast-grep"]
+	path = code-analysis/ast-grep
+	url = https://github.com/ast-grep/ast-grep.git
+[submodule "code-analysis/serena"]
+	path = code-analysis/serena
+	url = https://github.com/oraios/serena.git
