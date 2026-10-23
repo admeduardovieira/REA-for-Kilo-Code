@@ -1,0 +1,30 @@
+[submodule "rea-core/rea"]
+	path = rea-core/rea
+	url = https://github.com/morluto/rea.git
+[submodule "external/ast-grep"]
+	path = code-analysis/ast-grep
+	url = https://github.com/ast-grep/ast-grep.git
+[submodule "external/engram"]
+	path = memory/engram
+	url = https://github.com/Gentleman-Programming/engram.git
+[submodule "external/serena"]
+	path = code-analysis/serena
+	url = https://github.com/oraios/serena.git
+[submodule "external/context7"]
+	path = documentation/context7
+	url = https://github.com/upstash/context7.git
+[submodule "external/gitleaks"]
+	path = security/gitleaks
+	url = https://github.com/gitleaks/gitleaks.git
+[submodule "external/actionlint"]
+	path = ci-analysis/actionlint
+	url = https://github.com/rhysd/actionlint.git
+[submodule "external/osv-scanner"]
+	path = security/osv-scanner
+	url = https://github.com/google/osv-scanner.git
+[submodule "external/superpowers"]
+	path = skills/superpowers
+	url = https://github.com/obra/superpowers.git
+[submodule "external/kilo-marketplace"]
+	path = marketplace/kilo-marketplace
+	url = https://github.com/Kilo-Org/kilocode-marketplace.git
