@@ -43,3 +43,12 @@
 [submodule "ci-analysis/actionlint"]
 	path = ci-analysis/actionlint
 	url = https://github.com/rhysd/actionlint.git
+[submodule "memory/engram"]
+	path = memory/engram
+	url = https://github.com/Gentleman-Programming/engram.git
+[submodule "documentation/context7"]
+	path = documentation/context7
+	url = https://github.com/upstash/context7.git
+[submodule "skills/superpowers"]
+	path = skills/superpowers
+	url = https://github.com/obra/superpowers.git
