@@ -46,3 +46,8 @@ powershell -ExecutionPolicy Bypass -File .\scripts\rea-audit.ps1 -RepoPath "C:\p
 
 ## License
 See LICENSE and THIRD_PARTY_NOTICES.md for details.
+
+## Validação Obrigatória (REA)
+- Usar scripts/validate-fork.ps1 antes de push em diretórios *_fixed/
+- Ativar hooks locais: git config core.hooksPath .githooks
+- Checklist completo em AGENTS.md seção 'Validação Pré-Push (OBRIGATÓRIA)'

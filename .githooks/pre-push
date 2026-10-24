@@ -1,0 +1,16 @@
+#!/bin/sh
+# REA for Kilo Code pre-push hook
+
+echo '[REA] Running pre-push validation...'
+
+for file in $(git diff --name-only HEAD~1 HEAD 2>/dev/null | grep '.js$'); do
+    if [ -f "$ile" ]; then
+        node --check "$ile" 2>/dev/null
+        if [ $? -ne 0 ]; then
+            echo '[REA] ERROR: Syntax error in '$ile''
+            exit 1
+        fi
+    fi
+done
+
+exit 0
