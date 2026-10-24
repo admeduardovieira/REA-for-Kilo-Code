@@ -1,6 +1,6 @@
 ---
 description: REA Auditor agent for evidence-based technical auditing and reverse engineering.
-mode: subagent
+mode: all
 permission:
   edit: deny
   bash: ask
