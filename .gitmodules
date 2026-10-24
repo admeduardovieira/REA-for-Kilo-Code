@@ -27,7 +27,7 @@
 	url = https://github.com/obra/superpowers.git
 [submodule "external/kilo-marketplace"]
 	path = marketplace/kilo-marketplace
-	url = https://github.com/Kilo-Org/kilocode-marketplace.git
+	url = https://github.com/Kilo-Org/kilo-marketplace.git
 [submodule "code-analysis/ast-grep"]
 	path = code-analysis/ast-grep
 	url = https://github.com/ast-grep/ast-grep.git
@@ -55,3 +55,4 @@
 [submodule "marketplace/kilo-marketplace"]
 	path = marketplace/kilo-marketplace
 	url = https://github.com/Kilo-Org/kilo-marketplace.git
+
