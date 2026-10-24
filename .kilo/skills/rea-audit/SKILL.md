@@ -1,3 +1,8 @@
+---
+name: rea-audit
+description: Conduct evidence-based reverse engineering, technical auditing, regression testing, and security analysis.
+---
+
 # REA Audit Skill
 
 Run systematic technical audit using REA methodology.
@@ -17,3 +22,4 @@ Run systematic technical audit using REA methodology.
 - Follow AGENTS.md rules
 - Evidence required for confirmed findings
 - Ask authorization before fixes
+
