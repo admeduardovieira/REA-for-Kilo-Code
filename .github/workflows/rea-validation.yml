@@ -1,1 +1,39 @@
-name: REA Validation\n\non:\n  push:\n    branches: [ master, main ]\n  pull_request:\n    branches: [ master, main ]\n  workflow_dispatch:\n\njobs:\n  validate:\n    runs-on: windows-latest\n    steps:\n      - name: Checkout\n        uses: actions/checkout@v4\n        with:\n          fetch-depth: 0\n      - name: Setup Node\n        uses: actions/setup-node@v4\n        with:\n          node-version: '20'\n      - name: Check PowerShell syntax\n        shell: pwsh\n        run: |\n          \ = \\n          [System.Management.Automation.Language.Parser]::ParseFile('scripts/validate-fork.ps1', [ref]\, [ref]\) | Out-Null\n          if (\.Count -gt 0) { \ | ForEach-Object { Write-Error \.Message }; exit 1 }\n          Write-Host 'PowerShell syntax OK'\n      - name: Run structure tests\n        shell: pwsh\n        run: .\tests\test_structure.ps1\n      - name: Run script tests\n        shell: pwsh\n        run: .\tests\test_script.ps1\n      - name: Check pre-push hook\n        shell: bash\n        run: |\n          if [ ! -f .githooks/pre-push ]; then echo 'pre-push missing'; exit 1; fi\n          grep -q 'validate-fork.ps1' .githooks/pre-push || { echo 'pre-push missing validator'; exit 1; fi\n
+name: REA Validation
+
+on:
+  push:
+    branches: [ master, main ]
+  pull_request:
+    branches: [ master, main ]
+  workflow_dispatch:
+
+jobs:
+  validate:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Check PowerShell syntax
+        shell: pwsh
+        run: |
+          $null = [System.Management.Automation.Language.Parser]::ParseFile('scripts/validate-fork.ps1', [ref]$null, [ref]$null) | Out-Null
+          if ($errors.Count -gt 0) { $errors | ForEach-Object { Write-Error $_.Message }; exit 1 }
+          Write-Host 'PowerShell syntax OK'
+      - name: Run structure tests
+        shell: pwsh
+        run: .\tests\test_structure.ps1
+      - name: Run script tests
+        shell: pwsh
+        run: .\tests\test_script.ps1
+      - name: Check pre-push hook
+        shell: bash
+        run: |
+          if [ ! -f .githooks/pre-push ]; then echo 'pre-push missing'; exit 1; fi
+          grep -q 'validate-fork.ps1' .githooks/pre-push || { echo 'pre-push missing validator'; exit 1; }
+

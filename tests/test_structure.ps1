@@ -1,6 +1,6 @@
 # REA for Kilo Code - Structure tests
 $ErrorActionPreference = 'Stop'
-$repoRoot = Split-Path -Parent $PSScriptRoot | Split-Path -Parent
+$repoRoot = Split-Path -Parent $PSScriptRoot
 
 $required = @('AGENTS.md','README.md','scripts/validate-fork.ps1','.githooks/pre-push','tests/test_script.ps1','tests/test_structure.ps1')
 $missing = @()
