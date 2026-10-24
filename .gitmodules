@@ -56,3 +56,6 @@
 	path = marketplace/kilo-marketplace
 	url = https://github.com/Kilo-Org/kilo-marketplace.git
 
+[submodule "skills/kilo-skills"]
+	path = skills/kilo-skills
+	url = https://github.com/Kilo-Org/skills.git
