@@ -4,7 +4,7 @@
 param(
     [Parameter(Mandatory = $true)][string]$ForkPath,
     [string]$OriginalPath,
-    [Parameter(Mandatory = $true)][string[]]$ApprovedPaths,
+    [string[]]$ApprovedPaths,
     [string]$BaseRef,
     [string]$PushRemote = 'origin',
     [string]$ExpectedOwner = 'admeduardovieira',
@@ -12,7 +12,22 @@ param(
     [int]$MaximumDeletedLines = 1000
 )
 
+# Initialize ApprovedPaths from environment if not provided (P1/P2 fix)
+if (-not $ApprovedPaths) {
+    $envPaths = $env:APPROVED_PATHS
+    if (-not $envPaths) { throw 'ApprovedPaths not provided and APPROVED_PATHS env var not set.' }
+    $ApprovedPaths = $envPaths -split ','
+}
+
+# Initialize BaseRef from environment if not provided (P5 fix)
+if (-not $BaseRef -and $env:BASE_REF) {
+    $BaseRef = $env:BASE_REF
+}
+
 $ErrorActionPreference = 'Stop'
+if ($ApprovedPaths.Count -eq 1 -and $ApprovedPaths[0].Contains(',')) {
+    $ApprovedPaths = @($ApprovedPaths[0] -split ',')
+}
 $locationPushed = $false
 try {
     if (-not (Test-Path -LiteralPath $ForkPath -PathType Container)) {
@@ -30,10 +45,19 @@ try {
     $inside = (GitLines @('rev-parse', '--is-inside-work-tree')) -join ''
     if ($inside -ne 'true') { throw 'Not inside a Git working tree.' }
     $root = (GitLines @('rev-parse', '--show-toplevel')) -join ''
-    $here = (Get-Location).Path
-    if ([IO.Path]::GetFullPath($here).TrimEnd('\','/') -ne [IO.Path]::GetFullPath($root).TrimEnd('\','/')) {
-        throw 'ForkPath must be the repository root to prevent checking the wrong scope.'
-    }
+$here = (Get-Location).Path
+
+# O Git pode retornar caminhos Unix/MSYS no Windows.
+# Confirma o diretório real usando o proprio Git.
+$gitPrefix = (GitLines @('rev-parse', '--show-prefix')) -join ''
+
+if ($gitPrefix -ne '') {
+    throw 'ForkPath must be the repository root to prevent checking the wrong scope.'
+}
+
+if (-not (Test-Path -LiteralPath (Join-Path $here '.git'))) {
+    throw 'ForkPath does not contain Git repository metadata.'
+}
 
     # Check *push URL*, not only fetch URL, to catch pushurl overrides.
     $remoteUrl = (GitLines @('remote', 'get-url', '--push', $PushRemote)) -join ''
@@ -51,7 +75,12 @@ try {
         }
         $BaseRef = ([string]$upstream[0]).Trim()
     }
-    $null = GitLines @('rev-parse', '--verify', "$BaseRef^{commit}")
+    $null = GitLines @('rev-parse', '--verify', $BaseRef)
+
+$objectType = (GitLines @('cat-file', '-t', $BaseRef)) -join ''
+if ($objectType -ne 'commit') {
+    throw "BaseRef '$BaseRef' is not a commit."
+}
     $mergeBase = (GitLines @('merge-base', $BaseRef, 'HEAD')) -join ''
     if (-not $mergeBase) { throw "No common ancestor for BaseRef '$BaseRef'." }
     Write-Host "[REA] Comparing HEAD and working tree against $BaseRef (merge-base $mergeBase)"
@@ -112,8 +141,13 @@ try {
                 $null = ConvertFrom-Json -InputObject $raw -ErrorAction Stop
             }
             '.xml' {
+                $settings = New-Object System.Xml.XmlReaderSettings
+                $settings.DtdProcessing = [System.Xml.DtdProcessing]::Prohibit
+                $settings.XmlResolver = $null
+                $reader = [System.Xml.XmlReader]::Create((Resolve-Path -LiteralPath $file).Path, $settings)
                 $doc = New-Object System.Xml.XmlDocument
-                $doc.Load((Resolve-Path -LiteralPath $file).Path)
+                $doc.Load($reader)
+                $reader.Close()
             }
         }
     }
