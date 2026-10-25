@@ -45,10 +45,19 @@ try {
     $inside = (GitLines @('rev-parse', '--is-inside-work-tree')) -join ''
     if ($inside -ne 'true') { throw 'Not inside a Git working tree.' }
     $root = (GitLines @('rev-parse', '--show-toplevel')) -join ''
-    $here = (Get-Location).Path
-    if ([IO.Path]::GetFullPath($here).TrimEnd('\','/') -ne [IO.Path]::GetFullPath($root).TrimEnd('\','/')) {
-        throw 'ForkPath must be the repository root to prevent checking the wrong scope.'
-    }
+$here = (Get-Location).Path
+
+# O Git pode retornar caminhos Unix/MSYS no Windows.
+# Confirma o diretório real usando o proprio Git.
+$gitPrefix = (GitLines @('rev-parse', '--show-prefix')) -join ''
+
+if ($gitPrefix -ne '') {
+    throw 'ForkPath must be the repository root to prevent checking the wrong scope.'
+}
+
+if (-not (Test-Path -LiteralPath (Join-Path $here '.git'))) {
+    throw 'ForkPath does not contain Git repository metadata.'
+}
 
     # Check *push URL*, not only fetch URL, to catch pushurl overrides.
     $remoteUrl = (GitLines @('remote', 'get-url', '--push', $PushRemote)) -join ''
