@@ -22,18 +22,33 @@ jobs:
       - name: Check PowerShell syntax
         shell: pwsh
         run: |
-          $null = [System.Management.Automation.Language.Parser]::ParseFile('scripts/validate-fork.ps1', [ref]$null, [ref]$null) | Out-Null
+          $errors = $null
+          [System.Management.Automation.Language.Parser]::ParseFile('scripts/validate-fork.ps1', [ref]$null, [ref]$errors) | Out-Null
           if ($errors.Count -gt 0) { $errors | ForEach-Object { Write-Error $_.Message }; exit 1 }
           Write-Host 'PowerShell syntax OK'
+      - name: Check validate-fork.ps1 syntax
+        shell: pwsh
+        run: |
+          $errors = $null
+          [System.Management.Automation.Language.Parser]::ParseFile('./scripts/validate-fork.ps1', [ref]$null, [ref]$errors) | Out-Null
+          if ($errors.Count -gt 0) { $errors | ForEach-Object { Write-Error $_.Message }; exit 1 }
+          Write-Host 'validate-fork.ps1 syntax OK'
       - name: Run structure tests
         shell: pwsh
         run: .\tests\test_structure.ps1
       - name: Run script tests
         shell: pwsh
         run: .\tests\test_script.ps1
-      - name: Check pre-push hook
+      - name: Check pre-push hook exists
         shell: bash
         run: |
           if [ ! -f .githooks/pre-push ]; then echo 'pre-push missing'; exit 1; fi
+      - name: Check pre-push hook has validator
+        shell: bash
+        run: |
           grep -q 'validate-fork.ps1' .githooks/pre-push || { echo 'pre-push missing validator'; exit 1; }
-
+      - name: Check pre-push hook bash syntax
+        shell: bash
+        run: |
+          if ! bash -n .githooks/pre-push; then echo 'pre-push syntax error'; exit 1; fi
+          echo 'pre-push bash syntax OK'

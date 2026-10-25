@@ -8,8 +8,8 @@ if command -v pwsh >/dev/null 2>&1; then
 elif command -v powershell >/dev/null 2>&1; then
   PS_BIN=powershell
 else
-  echo [REA] WARNING: PowerShell not found. Skipping strict fork validation.
-  exit 0
+  echo [REA] WARNING: PowerShell not found. Skipping strict fork validation. Validation requires PowerShell.
+  exit 1
 fi
 BASE_REF=origin/master
 if ! git rev-parse --verify --quiet origin/master >/dev/null 2>&1; then
