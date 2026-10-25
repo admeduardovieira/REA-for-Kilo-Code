@@ -23,15 +23,13 @@ else
   exit 1
 fi
 
-if git rev-parse --verify --quiet 'origin/master^{commit}' >/dev/null; then
-  BASE_REF=origin/master
-elif git rev-parse --verify --quiet 'origin/main^{commit}' >/dev/null; then
-  BASE_REF=origin/main
-else
-  echo "[REA] BLOCKED: Cannot determine valid baseline"
+# Compare against the remote audit branch
+BASE_REF=origin/audit-final
+
+if ! git rev-parse --verify --quiet "$BASE_REF" >/dev/null 2>&1; then
+  echo "[REA] BLOCKED: Cannot determine valid audit baseline"
   exit 1
 fi
-
 APPROVED_PATHS="scripts/validate-fork.ps1,.githooks/pre-push,.github/workflows/rea-validation.yml,AGENTS.md,README.md,tests/test_script.ps1,tests/test_structure.ps1"
 
 "$PS_BIN" -NoProfile -NonInteractive -ExecutionPolicy Bypass \
