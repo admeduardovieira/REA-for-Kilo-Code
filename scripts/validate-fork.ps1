@@ -75,7 +75,12 @@ if (-not (Test-Path -LiteralPath (Join-Path $here '.git'))) {
         }
         $BaseRef = ([string]$upstream[0]).Trim()
     }
-    $null = GitLines @('rev-parse', '--verify', "$BaseRef^{commit}")
+    $null = GitLines @('rev-parse', '--verify', $BaseRef)
+
+$objectType = (GitLines @('cat-file', '-t', $BaseRef)) -join ''
+if ($objectType -ne 'commit') {
+    throw "BaseRef '$BaseRef' is not a commit."
+}
     $mergeBase = (GitLines @('merge-base', $BaseRef, 'HEAD')) -join ''
     if (-not $mergeBase) { throw "No common ancestor for BaseRef '$BaseRef'." }
     Write-Host "[REA] Comparing HEAD and working tree against $BaseRef (merge-base $mergeBase)"
