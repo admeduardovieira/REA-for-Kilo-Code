@@ -4,13 +4,25 @@
 param(
     [Parameter(Mandatory = $true)][string]$ForkPath,
     [string]$OriginalPath,
-    [Parameter(Mandatory = $true)][string[]]$ApprovedPaths,
+    [string[]]$ApprovedPaths,
     [string]$BaseRef,
     [string]$PushRemote = 'origin',
     [string]$ExpectedOwner = 'admeduardovieira',
     [int]$MaximumChangedFiles = 100,
     [int]$MaximumDeletedLines = 1000
 )
+
+# Initialize ApprovedPaths from environment if not provided (P1/P2 fix)
+if (-not $ApprovedPaths) {
+    $envPaths = $env:APPROVED_PATHS
+    if (-not $envPaths) { throw 'ApprovedPaths not provided and APPROVED_PATHS env var not set.' }
+    $ApprovedPaths = $envPaths -split ','
+}
+
+# Initialize BaseRef from environment if not provided (P5 fix)
+if (-not $BaseRef -and $env:BASE_REF) {
+    $BaseRef = $env:BASE_REF
+}
 
 $ErrorActionPreference = 'Stop'
 $locationPushed = $false
@@ -112,8 +124,13 @@ try {
                 $null = ConvertFrom-Json -InputObject $raw -ErrorAction Stop
             }
             '.xml' {
+                $settings = New-Object System.Xml.XmlReaderSettings
+                $settings.DtdProcessing = [System.Xml.DtdProcessing]::Prohibit
+                $settings.XmlResolver = $null
+                $reader = [System.Xml.XmlReader]::Create((Resolve-Path -LiteralPath $file).Path, $settings)
                 $doc = New-Object System.Xml.XmlDocument
-                $doc.Load((Resolve-Path -LiteralPath $file).Path)
+                $doc.Load($reader)
+                $reader.Close()
             }
         }
     }
