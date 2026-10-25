@@ -1,40 +1,51 @@
 #!/bin/sh
-# REA for Kilo Code - pre-push hook (hardened)
 set -eu
-echo [REA] Running pre-push validation...
+
+echo "[REA] Running pre-push validation..."
 
 REPO_ROOT=$(git rev-parse --show-toplevel)
 
+case "$REPO_ROOT" in
+  /[a-zA-Z]/*)
+    REPO_ROOT_WIN=$(printf '%s\n' "$REPO_ROOT" | sed -E 's|^/([a-zA-Z])/|\1:/|')
+    ;;
+  *)
+    REPO_ROOT_WIN="$REPO_ROOT"
+    ;;
+esac
+
 if command -v pwsh >/dev/null 2>&1; then
-  PS_BIN="pwsh"
+  PS_BIN=pwsh
 elif command -v powershell >/dev/null 2>&1; then
-  PS_BIN="powershell"
+  PS_BIN=powershell
 else
-  echo [REA] ERROR: PowerShell not found. Validation requires PowerShell.
+  echo "[REA] BLOCKED: PowerShell unavailable"
   exit 1
 fi
 
-BASE_REF="origin/master"
-if ! git rev-parse --verify --quiet origin/master >/dev/null 2>&1; then
-  if git rev-parse --verify --quiet origin/main >/dev/null 2>&1; then
-    BASE_REF="origin/main"
-  else
-    echo [REA] ERROR: Cannot determine valid baseline - push blocked.
-    exit 1
-  fi
+if git rev-parse --verify --quiet 'origin/master^{commit}' >/dev/null; then
+  BASE_REF=origin/master
+elif git rev-parse --verify --quiet 'origin/main^{commit}' >/dev/null; then
+  BASE_REF=origin/main
+else
+  echo "[REA] BLOCKED: Cannot determine valid baseline"
+  exit 1
 fi
 
-# Approved paths as comma-separated string for -split in PowerShell
 APPROVED_PATHS="scripts/validate-fork.ps1,.githooks/pre-push,.github/workflows/rea-validation.yml,AGENTS.md,README.md,tests/test_script.ps1,tests/test_structure.ps1"
-export REPO_ROOT BASE_REF APPROVED_PATHS
 
-"$PS_BIN" -NoProfile -ExecutionPolicy Bypass -File "$REPO_ROOT/scripts/validate-fork.ps1"
+"$PS_BIN" -NoProfile -NonInteractive -ExecutionPolicy Bypass \
+  -File "$REPO_ROOT_WIN/scripts/validate-fork.ps1" \
+  -ForkPath "$REPO_ROOT_WIN" \
+  -BaseRef "$BASE_REF" \
+  -ApprovedPaths "$APPROVED_PATHS" < /dev/null
+
 RC=$?
 
-if [ $RC -ne 0 ]; then
-  echo [REA] ERROR: Fork validation failed. Push blocked.
+if [ "$RC" -ne 0 ]; then
+  echo "[REA] BLOCKED: Validation failed"
   exit 1
 fi
 
-echo [REA] pre-push validation passed.
+echo "[REA] Validation passed"
 exit 0

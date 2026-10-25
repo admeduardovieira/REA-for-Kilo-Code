@@ -25,6 +25,9 @@ if (-not $BaseRef -and $env:BASE_REF) {
 }
 
 $ErrorActionPreference = 'Stop'
+if ($ApprovedPaths.Count -eq 1 -and $ApprovedPaths[0].Contains(',')) {
+    $ApprovedPaths = @($ApprovedPaths[0] -split ',')
+}
 $locationPushed = $false
 try {
     if (-not (Test-Path -LiteralPath $ForkPath -PathType Container)) {
